@@ -22,12 +22,12 @@ dt = 0.0005
 # D = np.sin(x/np.pi) # Varying Diffusion Coefficient 
 # dD_dx = np.cos(x/np.pi)/np.pi
 
-c = 1.0 #Convection Velocity
+c = 0.5 #Convection Velocity
 
 
 # %%
 
-denom = 6.28
+denom = 4*np.pi
 x_sym = Symbol('x')
 D_sym = sin(x_sym/denom)
 D_func = lambdify(x_sym, D_sym, "numpy") 
@@ -83,10 +83,10 @@ np.savez('Conv_Diff.npz', x=x, t=t, u=u_dataset)
 # %%
 from celluloid import Camera
 
-data = u_dataset
+data = this
 fig = plt.figure()
 camera = Camera(fig)
-for ii in range(0, len(data), 100):
+for ii in range(len(data)):
     plt.plot(data[ii], color='blue')
     camera.snap()
 animation = camera.animate()

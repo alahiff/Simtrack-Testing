@@ -1,0 +1,4 @@
+*.npy
+*.npz
+*.pyc
+Data/
