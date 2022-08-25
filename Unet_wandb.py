@@ -233,8 +233,8 @@ test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a,
 optimizer = torch.optim.Adam(model.parameters(), lr=configuration['Learning Rate'], weight_decay=1e-4)
 scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=configuration['Scheduler Step'], gamma=configuration['Scheduler Gamma'])
 
-# myloss = torch.nn.MSELoss()
-myloss = LpLoss(size_average=False)
+myloss = torch.nn.MSELoss()
+# myloss = LpLoss(size_average=False)
 
 
 epochs = configuration['Epochs']

@@ -23,7 +23,7 @@ from SimRun import run_sim
 # %%
 start_time = time()
 
-n_sims = 10000
+n_sims = 100
 
 lb = np.asarray([np.pi, 0.1, 1.0, 0.25])
 ub = np.asarray([4*np.pi, 1.0, 8.0, 0.75])

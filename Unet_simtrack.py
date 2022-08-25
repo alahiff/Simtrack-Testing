@@ -37,7 +37,7 @@ run.init(run_name,
         configuration, 
         ['PyTorch'],  # Tags
         'Convection Diffusion 1D Surrogate using a U-Net',   # Description
-        '/ConvDiff/Mark_1')    # Folder full path
+        '/ConvDiff/Mark_2')    # Folder full path
 
 #Upload the code
 run.save('Unet_simtrack.py', 'code')
@@ -243,8 +243,8 @@ test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a,
 optimizer = torch.optim.Adam(model.parameters(), lr=configuration['Learning Rate'], weight_decay=1e-4)
 scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=configuration['Scheduler Step'], gamma=configuration['Scheduler Gamma'])
 
-# myloss = torch.nn.MSELoss()
-myloss = LpLoss(size_average=False)
+myloss = torch.nn.MSELoss()
+# myloss = LpLoss(size_average=False)
 
 
 epochs = configuration['Epochs']
@@ -391,5 +391,5 @@ ax.title.set_text('Final')
 plt.savefig(os.getcwd() + '/Images/' + run_name + '.png')
 run.save(os.getcwd() + '/Images/' + run_name + '.png', 'output')
 
-end_time = time()
+end_time = time.time()
 print(end_time - start_time)
