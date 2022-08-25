@@ -17,7 +17,7 @@ from SimRun import run_sim
 
 # %%
 
-n_sims = 10000
+n_sims = 10000  
 lb = np.asarray([np.pi, 0.1, 1.0, 0.25])
 ub = np.asarray([4*np.pi, 1.0, 8.0, 0.75])
 
@@ -32,4 +32,4 @@ for ii in tqdm(range(n_sims)):
 u_dataset = np.asarray(u_dataset)
 
 # %%
-np.savez(os.getcwd() + '/Data/' + 'ConvDiff_u.npz', u = u_dataset, params=params)
+# np.savez(os.getcwd() + '/Data/' + 'ConvDiff_u.npz', u = u_dataset, params=params)

@@ -1,4 +1,7 @@
 *.npy
 *.npz
 *.pyc
+*.file
+*.out
+*.sh
 Data/

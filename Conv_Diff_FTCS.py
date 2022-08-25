@@ -6,9 +6,8 @@ Created on Mon Sep 14 14:19:49 2020
 @author: vgopakum
 
 Convection - Diffusion Equation: FTCS implementation
-
+# %%
 """
-
 import numpy as np 
 import matplotlib.pyplot as plt 
 from sympy import *
@@ -81,12 +80,14 @@ plt.legend()
 np.savez('Conv_Diff.npz', x=x, t=t, u=u_dataset)
 
 # %%
-from celluloid import Camera
+# from celluloid import Camera
 
-data = this
-fig = plt.figure()
-camera = Camera(fig)
-for ii in range(len(data)):
-    plt.plot(data[ii], color='blue')
-    camera.snap()
-animation = camera.animate()
+# data = u_dataset
+# fig = plt.figure()
+# camera = Camera(fig)
+# for ii in range(len(data)):
+#     plt.plot(data[ii], color='blue')
+#     camera.snap()
+# animation = camera.animate()
+
+np.save('this.npy', u_dataset)
