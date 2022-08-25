@@ -4,4 +4,10 @@
 *.file
 *.out
 *.sh
+
+#Folders
+Models/
+Images/
+Outputs/
 Data/
+wandb/
