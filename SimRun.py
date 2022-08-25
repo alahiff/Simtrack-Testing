@@ -115,7 +115,8 @@ def run_sim(ii, D_damp, c, mu, sigma):
     # plot.savefig(os.getcwd() + '/Images/' + run_name + '.png')
     # run.save(os.getcwd() + '/Images/' + run_name + '.png', 'output')
 
-    # u_dataset = u_dataset[::50]
+    u_dataset = u_dataset[::50]
+    
     # np.save(os.getcwd() + '/Outputs/' + run_name + '_u.npy', u_dataset)
     # run.save(os.getcwd() + '/Outputs/' + run_name + '_u.npy', 'output')
     

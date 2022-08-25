@@ -1,0 +1,35 @@
+wandb_version: 1
+
+D_damp:
+  desc: null
+  value: 10.633546510868786
+_wandb:
+  desc: null
+  value:
+    cli_version: 0.12.17
+    is_jupyter_run: false
+    is_kaggle_kernel: false
+    python_version: 3.7.13
+    start_time: 1661423127
+    t:
+      1:
+      - 55
+      2:
+      - 55
+      3:
+      - 2
+      - 3
+      - 16
+      4: 3.7.13
+      5: 0.12.17
+      8:
+      - 5
+c:
+  desc: null
+  value: 0.7735402405470652
+mu:
+  desc: null
+  value: 3.064485511284789
+sigma:
+  desc: null
+  value: 0.31293150731494357

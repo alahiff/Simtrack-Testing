@@ -11,13 +11,20 @@ import os
 import numpy as np
 from pyDOE import lhs 
 from tqdm import tqdm 
+from time import time
 
 from matplotlib import pyplot as plt 
+
 from SimRun import run_sim
+# from RunSim_simtrack import run_sim
+# from RunSim_wandb import run_sim
+
 
 # %%
+start_time = time()
 
-n_sims = 10000  
+n_sims = 10000
+
 lb = np.asarray([np.pi, 0.1, 1.0, 0.25])
 ub = np.asarray([4*np.pi, 1.0, 8.0, 0.75])
 
@@ -33,3 +40,6 @@ u_dataset = np.asarray(u_dataset)
 
 # %%
 # np.savez(os.getcwd() + '/Data/' + 'ConvDiff_u.npz', u = u_dataset, params=params)
+
+end_time = time()
+print("Total Time : " + str(end_time - start_time))
