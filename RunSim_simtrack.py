@@ -24,7 +24,7 @@ def run_sim(ii, D_damp, c, mu, sigma):
     start_time = time()
     run = Simtrack()   
 
-    run_name = 'Simrun_tests_'+str(ii)
+    run_name = 'Simrun_tests_no_alert'+str(ii)
     run_params = {'D_damp': D_damp, 'c': c, 'mu': mu, 'sigma': sigma}
 
         # Specify a run name, metadata (dict), tags (list), description, folder
@@ -96,14 +96,14 @@ def run_sim(ii, D_damp, c, mu, sigma):
         u_mid = u[100]
         run.log({'u_mid': float(u_mid)})
 
-        #Alerting a failed simulation
-        if u_mid > 1e6:
-            run.add_alert('Simulation Unstable', # Name
-                    'is above', # Type
-                    'u_interface',           # Metric
-                    1,                # Frequency
-                    1,                # Window
-                    threshold=1e6)     # Threshold
+        # #Alerting a failed simulation
+        # if u_mid > 1e6:
+        #     run.add_alert('Simulation Unstable', # Name
+        #             'is above', # Type
+        #             'u_interface',           # Metric
+        #             1,                # Frequency
+        #             1,                # Window
+        #             threshold=1e6)     # Threshold
 
         u_dataset[ii+1] = u
         
