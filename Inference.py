@@ -42,8 +42,38 @@ import time
 import operator
 from functools import reduce
 from functools import partial
+from SimRun import run_sim
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+# %%
+#Lower and Upper Ranges of the Hyperspace
+lb = np.asarray([np.pi, 0.1, 1.0, 0.25]) #D, c, mu, sigma
+ub = np.asarray([4*np.pi, 1.0, 8.0, 0.75])
+# %%
+
+# k-means clustering and distance metric of the inference point along with the distance metric 
+u = np.load(os.getcwd() + '/Data/ConvDiff_u.npz')['params'][:900]
+u =  u.astype(np.float32)
+
+from sklearn.cluster import KMeans
+kmeans = KMeans(n_clusters=2, random_state=0).fit(u)
+cluster_centres = kmeans.cluster_centers_
+
+# %% 
+from sklearn.metrics import pairwise_distances
+inside_range = np.asarray([3.0*np.pi, 0.5, 7.5, 0.45])
+outside_range = np.asarray([6*np.pi, 1.5, 0.5, 0.9])
+distances_inside = pairwise_distances(inside_range.reshape(1, -1), cluster_centres, metric='euclidean')[0][0]
+distances_outside = pairwise_distances(outside_range.reshape(1, -1), cluster_centres, metric='euclidean')[0][0]
+
+print("Euclidean Distance of the datapoint inside the data distribution : " + str(distances_inside))
+print("Euclidean Distance of the datapoint outside the data distribution : " + str(distances_outside))
+
+plt.scatter(cluster_centres[0], cluster_centres[1])
+
+distances_lb = pairwise_distances(lb.reshape(1, -1), cluster_centres, metric='euclidean')[0][0]
+distances_ub = pairwise_distances(ub.reshape(1, -1), cluster_centres, metric='euclidean')[0][0]
 
 # %%
 
@@ -154,68 +184,40 @@ model.load_state_dict(torch.load(os.getcwd() + '/Models/1i7zck12.pth', map_locat
 print("Number of model params : " + str(model.count_params()))
 model.to(device)
 
-# %%
-ntrain = configuration['Train Size']
-ntest = configuration['Test Size']
-batch_size = configuration['Batch Size']
 T_in = configuration['T_in']
 step = configuration['Step']
 T_out = configuration['T_out']
 
-u = np.load(os.getcwd() + '/Data/ConvDiff_u.npz')['u']
-u =  u.astype(np.float32)
-u = torch.from_numpy(u)
+def model_call(xx):
+    for t in range(0, T_out, step):
+        out = model(xx)
 
-train_a = u[:ntrain,:T_in,:]
-train_u = u[:ntrain,T_in:T_out+T_in,:]
-
-test_a = u[-ntest:,:T_in, :]
-test_u = u[-ntest:,T_in:T_out+T_in,:]
-
-
-train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(train_a, train_u), batch_size=batch_size, shuffle=True)
-test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=batch_size, shuffle=False)
+        if t == 0:
+            pred = out
+        else:
+            pred = torch.cat((pred, out), 1)       
+            
+        xx = torch.cat((xx[:, step:, :], out), dim=1)
+    return pred 
 
 # %%
 mse_func = torch.nn.MSELoss()
 
-#Testing 
-test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=1, shuffle=False)
+#Inference 
 
-pred_set = torch.zeros(test_u.shape)
-index = 0
-with torch.no_grad():
-    for xx, yy in tqdm(test_loader):
-        loss = 0
-        xx, yy = xx.to(device), yy.to(device)
-        for t in range(0, T_out, step):
-            y = yy[:, t:t + step, :]
-            out = model(xx)
-            loss += myloss(out.reshape(1, -1), y.reshape(1, -1))
+u_inside = run_sim(0, inside_range[0], inside_range[1], inside_range[2], inside_range[3])
+u_outside = run_sim(1, outside_range[0], outside_range[1], outside_range[2], outside_range[3])
 
-            if t == 0:
-                pred = out
-            else:
-                pred = torch.cat((pred, out), 1)       
-                
-            xx = torch.cat((xx[:, step:, :], out), dim=1)
+u_cluster_centre_1 = run_sim(2, cluster_centres[0][0], cluster_centres[0][1], cluster_centres[0][2], cluster_centres[0][3])
 
-        
-        # pred = y_normalizer.decode(pred)
-        pred_set[index]=pred
-        index += 1
-    
-MSE_error = (pred_set - test_u).pow(2).mean()
-MAE_error = torch.abs(pred_set - test_u).mean()
-
-print('(MSE) Testing Error: %.3e' % (MSE_error))
-print('(MAE) Testing Error: %.3e' % (MAE_error))
-
+u_nn_inside = model_call(torch.Tensor(np.expand_dims(u_inside[:20,:], 0 )))
+u_nn_outside = model_call(torch.Tensor(np.expand_dims(u_outside[:20,:], 0 )))
+u_nn_cluster_centre_1 = model_call(torch.Tensor(np.expand_dims(u_cluster_centre_1[:20,:], 0 )))
 # %%
-idx = np.random.randint(0, ntest) 
-print(idx)
-u_field_num = test_u[idx].cpu().detach().numpy()
-u_field_surr = pred_set[idx].cpu().detach().numpy()
+
+
+u_field_num = u_inside[T_in:T_out]
+u_field_surr = u_nn_inside.detach().numpy()[0]
 
 fig = plt.figure(figsize=plt.figaspect(0.25))
 
@@ -238,3 +240,57 @@ ax.plot(u_field_num[0], color='blue')
 ax.plot(u_field_surr[0], color='red', alpha=0.5)
 ax.set_xlabel('x')
 ax.title.set_text('Final')
+
+# %%
+
+u_field_num = u_outside[T_in:T_out]
+u_field_surr = u_nn_outside.detach().numpy()[0]
+
+fig = plt.figure(figsize=plt.figaspect(0.25))
+
+ax = fig.add_subplot(1,3,1)
+ax.plot(u_field_num[0], color='blue', label='Numerical Solution')
+ax.plot(u_field_surr[0], color='red', alpha=0.5, label='Neural Network')
+ax.title.set_text('Initial')
+ax.set_xlabel('x')
+ax.set_ylabel('u')
+ax.legend()
+
+ax = fig.add_subplot(1,3,2)
+ax.plot(u_field_num[int(T_out/2)], color='blue')
+ax.plot(u_field_surr[int(T_out/2)], color='red', alpha=0.5)
+ax.set_xlabel('x')
+ax.title.set_text('Middle')
+
+ax = fig.add_subplot(1,3,3)
+ax.plot(u_field_num[0], color='blue')
+ax.plot(u_field_surr[0], color='red', alpha=0.5)
+ax.set_xlabel('x')
+ax.title.set_text('Final')
+# %%
+
+u_field_num = u_cluster_centre_1[T_in:T_out]
+u_field_surr = u_nn_cluster_centre_1.detach().numpy()[0]
+
+fig = plt.figure(figsize=plt.figaspect(0.25))
+
+ax = fig.add_subplot(1,3,1)
+ax.plot(u_field_num[0], color='blue', label='Numerical Solution')
+ax.plot(u_field_surr[0], color='red', alpha=0.5, label='Neural Network')
+ax.title.set_text('Initial')
+ax.set_xlabel('x')
+ax.set_ylabel('u')
+ax.legend()
+
+ax = fig.add_subplot(1,3,2)
+ax.plot(u_field_num[int(T_out/2)], color='blue')
+ax.plot(u_field_surr[int(T_out/2)], color='red', alpha=0.5)
+ax.set_xlabel('x')
+ax.title.set_text('Middle')
+
+ax = fig.add_subplot(1,3,3)
+ax.plot(u_field_num[0], color='blue')
+ax.plot(u_field_surr[0], color='red', alpha=0.5)
+ax.set_xlabel('x')
+ax.title.set_text('Final')
+# %%

@@ -6,7 +6,7 @@ Created on Fri Aug 26, 2022
 Demonstration of SimTrack
 
 Surrogate Model for the 1D Convection Diffusion developed using a 1D U-Net Model deployed in a autoregressive framework. 
-Inference
+Testing 
 """
 # %%
 

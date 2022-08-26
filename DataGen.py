@@ -25,7 +25,7 @@ start_time = time()
 
 n_sims = 100
 
-lb = np.asarray([np.pi, 0.1, 1.0, 0.25])
+lb = np.asarray([np.pi, 0.1, 1.0, 0.25]) #D, c, mu, sigma
 ub = np.asarray([4*np.pi, 1.0, 8.0, 0.75])
 
 params = lb + (ub - lb) * lhs(4, n_sims)
