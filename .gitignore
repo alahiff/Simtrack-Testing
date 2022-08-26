@@ -4,6 +4,7 @@
 *.file
 *.out
 *.sh
+*.pth
 
 #Folders
 Models/
