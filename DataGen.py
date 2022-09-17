@@ -16,7 +16,7 @@ from time import time
 from matplotlib import pyplot as plt 
 
 # from SimRun import run_sim
-from RunSim_simtrack import run_sim
+from RunSim_simvue import run_sim
 # from RunSim_wandb import run_sim
 
 
